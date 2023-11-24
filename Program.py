@@ -68,7 +68,9 @@ while(i == 0):
                 if(bool(col.delete_one(nameToDelete))):
                     print("Deletion was successful")
                 else: print("Deletion failed")
-            else: print("The deletion was cancelled")
+            elif(confirmationInput == "n"): 
+                print("The deletion was cancelled")
+            else: print("Invalid input")
         else: print("Name not found")
    # Check for wrong input (not y or n)^
     if(userInput==4):
