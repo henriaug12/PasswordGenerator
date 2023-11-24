@@ -72,7 +72,6 @@ while(i == 0):
                 print("The deletion was cancelled")
             else: print("Invalid input")
         else: print("Name not found")
-   # Check for wrong input (not y or n)^
     if(userInput==4):
         pwToUpdate = input("What's the name of the password you want updated?\n")
         nameToUpdate = {"name": f"{pwToUpdate}"}
