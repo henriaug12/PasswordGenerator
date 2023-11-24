@@ -1,7 +1,6 @@
 import pymongo
 from pymongo import MongoClient
 import random
-i = 0
 def generatePassword(userMaxSize):
     passArray = ["1","2","3","4","5","6","7","8","9","0",
                  "a","b","c","d","e","f","g","h","i","j",
@@ -17,7 +16,7 @@ def generatePassword(userMaxSize):
         newPassword = newPassword + (passArray[random.randint(0, len(passArray)-1)])
     return newPassword
 
-while(i == 0):
+while(True):
     print("\nWhat service do you want to use?\n"+
           "1: Generate a new random password\n"+
           "2: See all passwords\n"+
