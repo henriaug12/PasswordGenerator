@@ -1,4 +1,3 @@
-import pymongo
 from pymongo import MongoClient
 import random
 def generatePassword(userMaxSize):
@@ -22,11 +21,11 @@ while(True):
           "2: See all passwords\n"+
           "3: Delete a password\n"+
           "4: Update a password\n"+
+          "5: Find a password by name\n"+
           "0: Exit\n")
     userInput = input("")
     userInput = int(userInput)
     client = MongoClient('mongodb://localhost:27017/')
-    dblist = client.list_database_names()
     db = client['PasswordGenerator']
     col = db["passwords"]
 
@@ -47,7 +46,7 @@ while(True):
                     userConfirmation = input("Is this password okay?(Y/N)\n")
                 else: userConfirmation = input("Input not recognized, try again\n")
             insertedId = col.insert_one({"name": f"{userNameInput}", "password": f"{createdPassword}"})
-        else: print("Name already taken, try updating instead.\n")
+        else: print("Name already exists, try updating instead.\n")
     
     if(userInput==2):
         print("Passwords:\n")
@@ -59,12 +58,12 @@ while(True):
         for nameAndPassword in col.find({}):
             print(f"{nameAndPassword['name']}: {nameAndPassword['password']}")
         pwToDelete = input("\nWhat's the name of the password you want deleted?\n")
-        nameToDelete = {"name": f"{pwToDelete}"}
-        if(col.find_one(nameToDelete)):
+        queryToDelete = {"name": f"{pwToDelete}"}
+        if(col.find_one(queryToDelete)):
             confirmationInput = input(f"Are you sure? {pwToDelete} will be deleted.(Y/N)\n")
             confirmationInput.lower()
             if(confirmationInput == "y"):
-                if(bool(col.delete_one(nameToDelete))):
+                if(bool(col.delete_one(queryToDelete))):
                     print("Deletion was successful")
                 else: print("Deletion failed")
             elif(confirmationInput == "n"): 
@@ -73,8 +72,8 @@ while(True):
         else: print("Name not found")
     if(userInput==4):
         pwToUpdate = input("What's the name of the password you want updated?\n")
-        nameToUpdate = {"name": f"{pwToUpdate}"}
-        documentToUpdate = col.find_one(nameToUpdate)
+        queryToUpdate = {"name": f"{pwToUpdate}"}
+        documentToUpdate = col.find_one(queryToUpdate)
         if(documentToUpdate):
             updateChoice = input("Would you like to change the name or the password?\n")
             updateChoice = updateChoice.lower()
@@ -84,7 +83,7 @@ while(True):
                 nameConfirmation = input(f"{documentToUpdate['name']} will be renamed to {newName}. Is this okay?(Y/N)")
                 nameConfirmation.lower()
                 if(nameConfirmation == "y"):
-                    if(bool(col.update_one(nameToUpdate,newValues))):
+                    if(bool(col.update_one(queryToUpdate,newValues))):
                         print("Update successful")
                     else: print("Update failed")
                 elif(nameConfirmation == "n"):
@@ -108,12 +107,20 @@ while(True):
                 newValues = { "$set": { "password": f"{newPassword}" } }
                 updateConfirmation = updateConfirmation.lower()
                 if(updateConfirmation == "y"):
-                    if(bool(col.update_one(nameToUpdate,newValues))):
+                    if(bool(col.update_one(queryToUpdate,newValues))):
                         print("Update successful")
                     else: print("Update failed")
                 
             else: print("Invalid choice")
         else: print("Name not found. Check the existing passwords for a typo, or create a new one\n")
+    
+    if(userInput==5):
+        pwToFind = input("What's the name of the password you want to find?\n")
+        queryToFind = {"name": f"{pwToFind}"}
+        documentToFind = col.find_one(queryToFind)
+        if(documentToFind):
+            print(f"{documentToFind['name']}: {documentToFind['password']}")
+        else: print("Password not found. Check for spelling errors or if it exists.")
     if(userInput==0):
         break
 client.close()    
