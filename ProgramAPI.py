@@ -24,7 +24,7 @@ def get_all_passwords():
 
 @app.route("/create-password/", methods=["POST"])
 def create_password():
-    data = request.get_json()
+    data = request.get_json(force=True)
     insertedId = col.insert_one({"name": f"{data['name']}", "password": f"{data['password']}"})
     return f"Password entry {data['name']} created successfully",201
 
