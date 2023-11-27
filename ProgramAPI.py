@@ -22,11 +22,12 @@ def get_all_passwords():
                         ]      
     return jsonList
 
-@app.route("/create-password", methods=["POST"])
+@app.route("/create-password/", methods=["POST"])
 def create_password():
     data = request.get_json()
+    insertedId = col.insert_one({"name": f"{data['name']}", "password": f"{data['password']}"})
+    return f"Password entry {data['name']} created successfully",201
 
-    return 201
 
 if __name__ == "__main__":
     client = MongoClient('mongodb://localhost:27017/')
