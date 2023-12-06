@@ -1,7 +1,23 @@
 from flask import Flask, request
 from pymongo import MongoClient
+import random
 
 app = Flask(__name__)
+
+def generatePassword(userMaxSize):
+    passArray = ["1","2","3","4","5","6","7","8","9","0",
+                 "a","b","c","d","e","f","g","h","i","j",
+                 "k","l","m","n","o","p","q","r","s","t",
+                 "u","v","w","x","y","z","A","B","C","D",
+                 "E","F","G","H","I","J","K","L","M","N",
+                 "O","P","Q","R","S","T","U","V","W","X",
+                 "Y","Z","`","~","!","@","#","$","%","^",
+                 "&","*","(",")","_","-","+","=","{","}",
+                 "[","]",":",";","|","<",",",".","?","/"]
+    newPassword = ""
+    for i in range(userMaxSize):
+        newPassword = newPassword + (passArray[random.randint(0, len(passArray)-1)])
+    return newPassword
 
 @app.route("/api/<password_name>", methods=['GET','DELETE'])
 def manage_passwords_url(password_name):
@@ -31,17 +47,19 @@ def manage_passwords():
     
     elif request.method == 'POST':
         data = request.get_json(force=True)
-        insertedId = col.insert_one({"name": f"{data['name']}", "password": f"{data['password']}"})
+        newPassword = generatePassword(32)
+        insertedId = col.insert_one({"name": f"{data['name']}", "password": f"{newPassword}"})
         if insertedId:
-            return f"Password entry {data['name']} created successfully",201
+            return f"Password created successfully:<br>{data['name']}: {newPassword}",201
     
     elif request.method == 'PUT':
         data = request.get_json(force=True)
         queryToUpdate = {"name": data['name']}
-        newValues = { "$set": { "password": f"{data['password']}" } }
+        newPassword = generatePassword(32)
+        newValues = { "$set": { "password": f"{newPassword}" } }
         updateSuccess = col.update_one(queryToUpdate,newValues)
         if updateSuccess:
-            return "Password updated successfully"
+            return f"Password updated successfully:<br> {data['name']}: {newPassword}"
 
 if __name__ == "__main__":
     client = MongoClient('mongodb://localhost:27017/')
